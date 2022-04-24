@@ -482,7 +482,6 @@ class listeners {
 
     static change = {
         changeSelected: function (dataName) {
-            if(dataName == 'S') {return};
             let home = document.querySelector(".home").children;
             let project = document.querySelector(".projects").children;
             let change = document.querySelector(`[data-name='${dataName}']`)
@@ -492,6 +491,7 @@ class listeners {
             for (let i = 0; i < project.length; i++) {
                 project[i].dataset.selected = 'false';
             }
+            if (change == null) {return};
             change.dataset.selected ='true';
         },
         changeTabContent: function (i,type,data) {
