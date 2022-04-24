@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest</title>
+    <link rel="icon" href="book.svg">
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div class="header">
+        <p class="header-title">
+            <i id="header-bar"class="fa-solid fa-bars" data-counter="1"></i> Quest
+        </p>
+    </div>
+
+    <div class="center">
+        <div class="navbar">
+
+            <div class="home">
+                <p class="title">Home</p>
+                <p class="all" data-name="All Tasks" data-selected="true"> <i class="fa-solid fa-book-open"></i> All Tasks </p>
+                <p class="today" data-name="Today" data-selected="false"> <i class="fa-solid fa-calendar-check"></i> Today</p>
+                <p class="week" data-name="This Week" data-selected="false"> <i class="fa-solid fa-calendar-days"></i> This Week</p>
+                <p class="important" data-name="Important" data-selected="false"> <i class="fa-solid fa-circle-exclamation"></i> Important</p>
+                <p class="completed" data-name="Completed" data-selected="false"> <i class="fa-solid fa-check"></i> Completed</p>
+                <p class="failed" data-name="Failed" data-selected="false"> <i class="fa-solid fa-xmark"></i> Failed</p>
+            </div>
+
+            <div class="projects">
+                <p class="title">Projects</p>
+                <p class="new"> <i class="fa-solid fa-plus"></i> New </p>
+
+            </div>
+
+        </div>
+
+        <div class="separe"></div>
+        <div class="content">
+            <p class="currentTab">All  Tasks</p>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p class="footer-cont">
+        2022 @ <i class="fa-brands fa-github"></i> aalbino221
+        </p>
+    </div>
+
+    <div class="modal">
+        <div class="form">
+            <form id="myForm">
+                <div class="form-header">
+                    <p class="form-header-name">New Task</p>
+                    <i id="close" class="fa-solid fa-xmark"></i>
+                </div>
+
+                <div class="form-title">
+                    <label for ="input-title">Title</label>
+                    <input id ="input-title" type="text">
+                </div>
+                <div class="form-description">
+                    <label for ="input-description">Description</label>
+                    <textarea id="input-description"></textarea>
+                </div>
+                <div class="form-footer">
+                    <div class="form-date">
+                        <label for ="input-date">Date</label>
+                        <input id="input-date" type="date">
+                    </div>
+
+                    <div class="form-priority">
+                        <label for ="input-priority">Priority</label>
+                        <select id="input-priority">
+                            <option value="L">Low</option>
+                            <option value="M">Medium</option>
+                            <option value="H">High</option>
+                        </select>
+                    </div>
+                    <div class="form-project">
+                        <label for="input-project">Project</label>
+                        <select id="input-project">
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+                    <div class="form-new">
+                        <input id="new" type="button" value="New">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-project">
+            <form id="form-project">
+                <div class="form-header">
+                    <p class="form-header-name">New Project</p>
+                    <i id="close-project" class="fa-solid fa-xmark"></i>
+                </div>
+
+                <div class="form-title" id="title2">
+                    <label for ="input-title-project">Title</label>
+                    <input id ="input-title-project" type="text">
+                </div>
+
+                <div class="form-description" id="desc2">
+                    <label for ="input-description">Description</label>
+                    <textarea id="input-description-project"></textarea>
+                </div>
+
+                <div class="form-new-project">
+                    <input id="new-project" type="button" value="New">
+                </div>
+            </form>
+    </div>
+
+
+</body>
+</html>
