@@ -112,6 +112,7 @@ function reset() {
 
 function initTask() {
     let tasksArray = JSON.parse(localStorage.getItem("task"));
+    if (tasksArray == null) {return};
     for (let key of tasksArray) {
         allTasks[0].tasks.push(key);
     }
@@ -119,6 +120,7 @@ function initTask() {
 
 function initProject() {
     let projectArray =  JSON.parse(localStorage.getItem("projects"));
+    if (projectArray == null) {return};
     for (let key of projectArray) {
         let tempKey = key.tasks;
         key.tasks = '';
