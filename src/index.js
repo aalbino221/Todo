@@ -551,8 +551,9 @@ class listeners {
                 }
             }
             let projects = document.querySelector(".projects").children;
-            for (let j = 2; j < projects.length; j++) {
-                projects[j].remove();
+            for (let j = 2 ; j < projects.length; j++) {
+                if (projects[j].textContent == data) {
+                    projects[j].remove();}
             }
             organize();
             document.querySelector(".all").dataset.selected = 'true';
