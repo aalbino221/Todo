@@ -61,7 +61,6 @@ class listeners {
 
     static changeContent = {
         changeTabContent: function (i,type,data) {
-            copy();
             let parent = document.querySelector(`${type}`).children;
             listeners.changeContent.changeSelected(data);
             for (let j = 0 ; j < allTasks.length ; j++) {
@@ -69,6 +68,8 @@ class listeners {
                 if (allTasks[j].name == parent[i].dataset.name) {
                     document.querySelector(".content").innerHTML = `<p class="currentTab">${parent[i].dataset.name}</p`;
                     listeners.changeContent.newTaskBtn();
+                    console.log(document.querySelectorAll(".task"));
+                    console.log(allTasks);
                     for (let l = 0 ; l < allTasks[j].tasks.length ; l ++) {
                         listeners.changeContent.addContent(allTasks[j].tasks[l],l);
                     }
@@ -186,8 +187,10 @@ class listeners {
                 taskChange.project = document.querySelector("#input-project").value;
                 listeners.taskMethods.closeTask();
                 newBtn.removeEventListener("click",editTask);
-                newBtn.addEventListener("click",listeners.taskMethods.addTask)
+                newBtn.addEventListener("click",listeners.taskMethods.addTask);
                 controller.organize();
+                copy();
+                console.log(allTasks)
                 listeners.changeMain.changeTabDinamic();
             }
             newBtn.addEventListener("click",editTask);
@@ -214,8 +217,10 @@ class listeners {
             }
         },
         taskDelete: function (data) {
+                console.log(data);
                 controller.removeTask(data);
                 controller.organize();
+                copy();
                 listeners.changeMain.changeTabDinamic();
         },
     }

@@ -43,6 +43,9 @@ class orgTask {
             }
         },
         project: function(allTasks) {
+            for (let i = 6 ; i < allTasks.length ; i++) {
+                    allTasks[i].tasks = [];
+            }
             for (let task of allTasks[0].tasks) {
                 for (let i = 6 ; i < allTasks.length ; i++) {
                     if (allTasks[i].name == task.project) {

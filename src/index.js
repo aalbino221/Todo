@@ -3,8 +3,6 @@ import  { organizeOrg, removeTasks, removeProjects } from './orgTask';
 import {newTask, newProjectIndex} from './newTask';
 import {listeners, initializeDom, copy} from './dom';
 
-/*----------------------------------------INDEX.JS*----------------------------------------*/
-
 let allTasksIndex = [
 {name: 'All Tasks', tasks: [] }, {name: 'Today',tasks: [] }, {name: 'This Week',tasks: [] },{name: 'Important',tasks: [] },{name: 'Completed',tasks: [] },{name: 'Failed',tasks: [] },];
 
@@ -48,6 +46,7 @@ function init() {
 
     function initProject() {
         let projectArray =  JSON.parse(localStorage.getItem("projects"));
+        console.log(projectArray);
         if (projectArray == null) {return};
         for (let key of projectArray) {
             let tempKey = key.tasks;
