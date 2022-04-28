@@ -1,221 +1,406 @@
-import { isThisWeek } from "date-fns";
+import { parseISO, add , isBefore , set } from 'date-fns';
+import { allTasksIndex, controller} from './index'
 
-/*newTask.js*/
-let allTasks = [
-    {name: 'All Tasks',
-    tasks: [{title:"eu",description:"sou um cara legal",dueDate:'2022-04-21'},{title:"Com bons",description:"Sentimentos",dueDate:'2022-04-21',project:"none"}]
-    },
-    {name: 'Projeto 1',
-    tasks: []
-    },
-]
-
-class makeTask {
-    constructor(title,description,dueDate,priority) {
-        this.title = title;
-        this.description = description;
-        this.dueDate = dueDate;
-        this.priority = priority;
-    }
+function resetHours (date) { /*RESETA AS HORAS*/
+    let resetedDate = set(date, {hours: 0, minutes:0, seconds: 0})
+    return resetedDate;
 }
 
-function newTask(title,description,dueDate,priority,i = null) {
-    let task = new makeTask(title,description,dueDate,priority);
-    allTasks[0].tasks.push(task);
-    if (i != null) {
-        allTasks[i].tasks.push(task);
-    };
+function dateString (date) { /*CONVERTE PARA DATA*/
+    let resetedDate = date.getFullYear()+ '-0'+ (date.getMonth()+1) + '-'+ date.getDate();
+    return resetedDate;
 }
 
-/*END*/
-
-/*INDEX.JS*/
-
-class controller {
-    static addTask(title,description,dueDate,priority,check,i = null) {
-            newTask(title,description,dueDate,priority,check,i = null);
-    }
+function newElement(type,name) {
+    let doc = document.createElement(type);
+    (name != undefined)? doc.classList.add(name): '';
+    return doc;
 }
 
-/*END*/
+let allTasks = [];
 
+function copy () {
+    allTasks = allTasksIndex
+}
 
 class listeners {
-    static selectors = {
-        /*HEADER*/
-        headerBar: document.querySelector("#header-bar"),
-
-        /*NAVBAR*/
-        navBar: document.querySelector(".navbar"),
-        navAll: document.querySelector(".all"),
-        navToday: document.querySelector(".today"),
-        navWeek: document.querySelector(".week"),
-        navImportant: document.querySelector(".important"),
-        navCompleted: document.querySelector(".completed"),
-        navFailed: document.querySelector(".failed"),
-        navNew: document.querySelector(".new"),
-        
-        /*CONTENT*/
-        content: document.querySelector(".content"),
-
-        /*MODAL*/
-        newTask: document.querySelector("#newTask"),
-        modal: document.querySelector(".modal"),
-        modalClose: document.querySelector("#close"),
-        modalNew: document.querySelector("#new"),
-        myForm: document.querySelector("#myForm"),
-
-        /*MODAL-VALUES*/
-        inputTitle: document.querySelector("#input-title"),
-        inputDescription: document.querySelector("#input-description"),
-        inputDate: document.querySelector("#input-date"),
-        inputPriority: document.querySelector("#input-priority")
+    static changeMain = {
+        changeTab: function () {
+            let home = document.querySelector(".home").children;
+            let projects = document.querySelector(".projects").children;
+            for (let i = 1 ; i < home.length; i++) {
+                let dataName = home[i].dataset.name;
+                home[i].addEventListener("click", () => listeners.changeContent.changeTabContent(i,".home",dataName));
+            };
+            for (let i = 2; i < projects.length ; i++) {
+                let dataName = projects[i].dataset.name;
+                projects[i].addEventListener("click", ()=> listeners.changeContent.changeTabContent(i,".projects",dataName));
+            }
+        },
+        changeTabDinamic: function () {
+            let projects = document.querySelector(".projects").children;
+            let home = document.querySelector(".home").children;
+            let tab = '';
+            let dataName;
+            let z = 0;
+            for (let i = 1 ; i < home.length; i++) {
+                if (home[i].dataset.selected == 'true') {
+                    tab = '.home';
+                    z = i;
+                    dataName = home[i].dataset.name;}
+            }
+            for (let i = 2; i < projects.length ; i++) {
+                if (projects[i].dataset.selected == 'true') {
+                    tab = '.projects';
+                    z = i;
+                    dataName = projects[i].dataset.name;}
+            }
+            listeners.changeContent.changeTabContent(z,tab,dataName);
+        }
     }
 
-    static methods = {
-        newElement: function(type,name) {
-            let doc = document.createElement(type);
-            doc.classList.add(name);
-            return doc;
-        },
-        newTask: function() {
-            listeners.selectors.modal.style.display = 'flex';
-        },
-        closeTask: function() {
-            listeners.selectors.modal.style.display = 'none';
-            listeners.selectors.myForm.reset();
-        },
-        addTask: function () {
-            let title = listeners.selectors.inputTitle.value;
-            let description = listeners.selectors.inputDescription.value;
-            let dueDate = listeners.selectors.inputDate.value;
-            let priority = listeners.selectors.inputPriority.value;
-            controller.addTask(title,description,dueDate,priority);
-            listeners.methods.closeTask();
-        },
-        collapse:  function() {
-            if (listeners.selectors.headerBar.dataset.counter == '1') {
-                listeners.selectors.navBar.style.display='none';
-                listeners.selectors.headerBar.dataset.counter = '0';
-            }
-            else {listeners.selectors.navBar.style.display= 'flex';
-                listeners.selectors.headerBar.dataset.counter = '1';
+    static changeContent = {
+        changeTabContent: function (i,type,data) {
+            copy();
+            let parent = document.querySelector(`${type}`).children;
+            listeners.changeContent.changeSelected(data);
+            for (let j = 0 ; j < allTasks.length ; j++) {
+                if (parent[i] == undefined) {return};
+                if (allTasks[j].name == parent[i].dataset.name) {
+                    document.querySelector(".content").innerHTML = `<p class="currentTab">${parent[i].dataset.name}</p`;
+                    listeners.changeContent.newTaskBtn();
+                    for (let l = 0 ; l < allTasks[j].tasks.length ; l ++) {
+                        listeners.changeContent.addContent(allTasks[j].tasks[l],l);
+                    }
+                }
             }
         },
-        addContent: function (i) {
-            console.log("i am firing-  addContent")
-
+        changeSelected: function (dataName) {
+            let home = document.querySelector(".home").children;
+            let project = document.querySelector(".projects").children;
+            let change = document.querySelector(`[data-name='${dataName}']`)
+            for (let i = 0; i < home.length ; i++) {
+                home[i].dataset.selected = 'false';
+            }
+            for (let i = 0; i < project.length; i++) {
+                project[i].dataset.selected = 'false';
+            }
+            if (change == null) {return};
+            change.dataset.selected ='true';
+        },
+        newTaskBtn: function () {
+            let content = document.querySelector(".content")
+            let newBtn = newElement("div","task");
+            newBtn.setAttribute("id","newTask");
+            newBtn.innerHTML = '<i class="fa-solid fa-plus"></i> New';
+            content.append(newBtn);
+            document.querySelector("#newTask").addEventListener("click", listeners.taskMethods.newTask );
+        },
+        addContent: function (key) {
+            let currentTab = document.querySelector(".currentTab").textContent;
+            if(key.check == 'failed' && currentTab != 'Failed') {return}
             let content = document.querySelector(".content");
-            let currentTask = allTasks[0].tasks[i];
-            let task = document.createElement("div");
-            task.classList.add("task");
+            let currentTask = key;
+            let task = newElement("div","task");
+            task.dataset.name =  currentTask.title;
+            let data = currentTask.title;
 
-                let taskCheck = document.createElement("div");
-                taskCheck.classList.add("task-check");
+                (currentTask.priority == 'L')? task.style.borderLeft = 'solid 4px DarkGreen' : '';
+                (currentTask.priority == 'M')? task.style.borderLeft = 'solid 4px GoldenRod' : '';
+                (currentTask.priority == 'H')? task.style.borderLeft = 'solid 4px FireBrick' : '';
+                (currentTask.check == true)? task.style.borderLeft = 'solid 4px #2a3744': '';
+
+                let taskCheck = newElement("div","task-check")
                     if (currentTask.check == true) {
-                    taskCheck.innerHTML = '<i class="fa-solid fa-circle-check"></i>'}
-                    else {taskCheck.innerHTML = '<i class="fa-regular fa-circle"></i>'}
+                    taskCheck.innerHTML = '<i class="fa-solid fa-circle-check"></i>'
+                    }
+                    else if (currentTask.check == 'failed') {
+                        taskCheck.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>'
+                    }
+                    else {taskCheck.innerHTML = '<i class="fa-regular fa-circle"></i>'};
 
-                let taskTitle = document.createElement("p");
-                taskTitle.classList.add("task-title");
+                let taskTitle = newElement("p","task-title");
                 taskTitle.textContent = currentTask.title;
 
-                let taskRight = document.createElement("div");
-                taskRight.classList.add("task-right");
+                let taskRight = newElement("div","task-right");
 
-                    let taskDate = document.createElement("div");
-                    taskDate.classList.add("task-date");
-                            let taskDueDate = document.createElement("div");
-                            taskDueDate.classList.add("task-dueDate");
-                            taskDueDate.textContent = currentTask.dueDate;
-                        
-                    let taskDetails = document.createElement("p");
-                    taskDetails.classList.add("task-details");
+                    let taskDate = newElement("div","task-date");
+                            let taskDateIcon = newElement("div");
+                            taskDate.append(taskDateIcon);
+                            let today = new Date();
+                            today = dateString(today);  
+                            let endWeek = new Date();
+                            endWeek = add(endWeek, {days:7})
+                            endWeek = resetHours(endWeek);
+                            endWeek = set(endWeek, {hours:23,minutes:59,seconds:59})
+                            let dueDate = parseISO(currentTask.dueDate);
+                            (isBefore(dueDate,endWeek) && currentTask.check == false) ? taskDateIcon.innerHTML = '<i class="fa-solid fa-hourglass-empty"></i>' : '';
+                            (currentTask.dueDate == today && currentTask.check == false) ? taskDateIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>' :  '';
+                            (currentTask.check == true) ? taskDateIcon.innerHTML = '<i class="fa-solid fa-check-double"></i> ' : '';
+                            (currentTask.check == 'failed') ? taskDateIcon.innerHTML = '<i class="fa-solid fa-calendar-xmark"></i>' : '';
+                            (taskDateIcon.innerHTML == '') ? taskDateIcon.innerHTML = '<i class="fa-solid fa-hourglass-empty"></i>' : '';
+                            taskDateIcon.style.marginRight = '3px';
+
+                            let taskDueDate = newElement("div","task-dueDate");
+                               dueDate = dueDate.getDate()+'/0'+(dueDate.getMonth()+1);
+                            taskDueDate.textContent = dueDate;
+
+                    let taskDetails = newElement("p","task-details")
                     taskDetails.textContent = "DETAILS";
 
-                    let taskDelete = document.createElement("p");
-                    taskDelete.classList.add("task-delete");
+                    let taskDelete = newElement("p","task-delete")
                     taskDelete.innerHTML = '<i class="fa-solid fa-trash"></i>';
+
+            taskCheck.addEventListener("click",() => listeners.changeContent.taskCheck(data));
+            taskDelete.addEventListener("click",()=> listeners.changeContent.taskDelete(data));
+            taskDetails.addEventListener("click",()=> listeners.changeContent.taskDetails(data));
 
             taskDate.append(taskDueDate);
             taskRight.append(taskDate,taskDetails,taskDelete);
             task.append(taskCheck,taskTitle,taskRight);
             content.append(task);
         },
+        taskDetails: function (data){
+            let taskChange;
+            for (let key of allTasks[0].tasks) {
+                if (data == key.title) {
+                    taskChange = key;
+                }
+            }
+            document.querySelector(".modal").style.display = 'flex';
+            document.querySelector("#input-title").value = taskChange.title;
+            document.querySelector("#input-description").value = taskChange.description;
+            document.querySelector("#input-date").value = taskChange.dueDate;
+            document.querySelector("#input-priority").value = taskChange.priority; 
+            document.querySelector("#input-project").value = taskChange.project;
 
-        changeContent: function(a) {
-            let home = document.querySelector(".home").children;
-            let contentCenter = document.querySelector(".content");
-            contentCenter.remove();
+            let newBtn = document.querySelector("#new");
+            newBtn.value = "Edit";
+            newBtn.removeEventListener("click",listeners.taskMethods.addTask);
 
-            let center = document.querySelector(".center");
-            let content = document.createElement("div");
-            content.classList.add("content");
-            center.append(content);
-
-            let currentTab = document.createElement("p");
-            currentTab.classList.add("currentTab");
-            currentTab.textContent = home[a].dataset.name;
-            content.append(currentTab);
-        }
-    }
-
-    static change = {
-        changeSelected: function (selected) {
-            let change = document.querySelector(`.${selected}`)
-            listeners.selectors.navAll.removeAttribute('id');
-            listeners.selectors.navToday.removeAttribute('id');
-            listeners.selectors.navWeek.removeAttribute('id');
-            listeners.selectors.navImportant.removeAttribute('id');
-            listeners.selectors.navCompleted.removeAttribute('id');
-            listeners.selectors.navFailed.removeAttribute('id');
-            change.setAttribute("id","selected");
+            function editTask () {
+                taskChange.title = document.querySelector("#input-title").value;
+                taskChange.description = document.querySelector("#input-description").value;
+                taskChange.dueDate = document.querySelector("#input-date").value ;
+                taskChange.priority = document.querySelector("#input-priority").value;
+                taskChange.project = document.querySelector("#input-project").value;
+                listeners.taskMethods.closeTask();
+                newBtn.removeEventListener("click",editTask);
+                newBtn.addEventListener("click",listeners.taskMethods.addTask)
+                controller.organize();
+                listeners.changeMain.changeTabDinamic();
+            }
+            newBtn.addEventListener("click",editTask);
         },
-        changeAll: function () {
-            listeners.change.changeSelected('all');
-            listeners.methods.changeContent(1);
-            for (let i = 0; i < allTasks[0].tasks.length; i++) {
-                listeners.methods.addContent(i);
+        taskCheck: function (data) {
+            let taskChange;
+            for (let key of allTasks[0].tasks) {
+                if (data == key.title) {
+                    taskChange = key;
+                }
+            }
+            if (taskChange == undefined) {return};
+            if (taskChange.check == false) {
+                taskChange.check = true;
+                controller.organize();
+                listeners.changeMain.changeTabDinamic();
+                return;
+            }
+            if (taskChange.check == true) {
+                taskChange.check = false;
+                controller.organize();
+                listeners.changeMain.changeTabDinamic();
+                return;
             }
         },
-        changeToday: function () {
-            listeners.change.changeSelected('today');
-            listeners.methods.changeContent(2);
-            let today = new Date();
-            today = today.getFullYear()+ '-'+ (today.getMonth()+1) + '-'+ today.getDate();
-            for (let i = 0; i < allTasks[0].tasks.length; i++) {
-                let dueDate = allTasks[0].tasks[i].dueDate;
-                dueDate = parseISO(dueDate);
-                dueDate = dueDate.getFullYear() +'-'+ (dueDate.getMonth()+1) + '-'+ dueDate.getDate();
+        taskDelete: function (data) {
+                controller.removeTask(data);
+                controller.organize();
+                listeners.changeMain.changeTabDinamic();
+        },
+    }
 
-                (dueDate == today)? listeners.methods.addContent(i): '';
+    static taskMethods = {
+        addTask: function () {
+            let title = document.querySelector("#input-title").value;
+            let description = document.querySelector("#input-description").value;;
+            let dueDate = document.querySelector("#input-date").value;
+            let priority = document.querySelector("#input-priority").value;
+            let projeto = document.querySelector("#input-project").value;
+            let check = false;
+            for (let key of allTasks[0].tasks) {
+                if (title == key.title) { document.querySelector("#input-title").dataset.validity = 'true';
+                    setTimeout(() => {document.querySelector("#input-title").dataset.validity = 'false'},2000);
+                    let selected = document.querySelector("#input-title");
+                    let value = document.querySelector("#input-title").value;
+                    let number = Number(value[value.length-1]);
+                    if (isNaN(number)) {selected.value = selected.value + '-1'
+                    return}
+                    else {
+                        let valueLength = value.length-1;
+                        let str = value.slice(0,valueLength);
+                        selected.value = str + (number+1);
+                        return
+                    }
+                }
             }
-        }
+            if (dueDate == '' || title == '') {
+                (dueDate == '')? document.querySelector("#input-date").dataset.validity = 'true' : '';
+                (title == '')? document.querySelector("#input-title").dataset.validity = 'true': '';
+                setTimeout(() => {document.querySelector("#input-title").dataset.validity = 'false'},2000)
+                setTimeout(() => {document.querySelector("#input-date").dataset.validity = 'false'},2000)
+                return
+            };
+            controller.addTask(title,description,dueDate,priority,check,projeto);
+            listeners.taskMethods.closeTask();
+        },
+        closeTask: function () {
+            document.querySelector(".modal").style.display = 'none';
+            document.querySelector(".modal-project").style.display = 'none';
+            let buttonNew = document.querySelector("#new");
+            buttonNew.value = 'New';
+        },
+        newTask: function() {
+            document.querySelector(".modal").style.display = 'flex';
+            document.querySelector("#myForm").reset();
+            let inputProject = document.querySelector("#input-project");
+            inputProject.innerHTML = '';
+            let none = newElement("option");
+            none.textContent = 'None';
+            none.value = 'none';
+            inputProject.append(none);
+            let currentTab = document.querySelector(".currentTab");
+            for (let i = 6 ; i < allTasks.length ; i++) {
+                let option = newElement("option");
+                option.textContent = allTasks[i].name;
+                option.value = allTasks[i].name;
+                inputProject.append(option);
+                }
 
+            let options = inputProject.children;
+            for (let x = 1 ; x < options.length ; x++) {
+                if (options[x].value == currentTab.textContent) {
+                    options[x].setAttribute("selected","default")
+                }
+            }
+        },
     }
 
-    static newTask() {
-        this.selectors.newTask.addEventListener("click", listeners.methods.newTask );
-        this.selectors.modalClose.addEventListener("click", listeners.methods.closeTask);
-        this.selectors.modalNew.addEventListener("click", listeners.methods.addTask);
-    }
-    static navBar() {
-        this.selectors.headerBar.addEventListener("click", listeners.methods.collapse)
-    }
-    static changeTab() {
-        let home = document.querySelector(".home").children;
-        home[1].addEventListener("click",listeners.change.changeAll);
-        home[2].addEventListener("click",listeners.change.changeToday);
-    }
-    static changeProject() {
-        for (let i = 2; i < projects.length ; i++) {
-            projects[i].addEventListener("click", () => listeners.methods.changeContent(i,2))
+    static eventListeners = {
+        navBar: function () {
+            function collapse() {
+                if (document.querySelector("#header-bar").dataset.counter == '1') {
+                    document.querySelector(".navbar").style.display='none';
+                    document.querySelector(".separe").style.display='none'
+                    document.querySelector("#header-bar").dataset.counter = '0';
+                }
+                else {document.querySelector(".navbar").style.display= 'flex';
+                    document.querySelector(".separe").style.display='flex'
+                    document.querySelector("#header-bar").dataset.counter = '1';
+                }
+            }
+            document.querySelector("#header-bar").addEventListener("click",collapse)
+        },
+        newProjectListener: function() {
+            let newBtn = document.querySelector(".new");
+            let closeProject = document.querySelector("#close-project");
+            let newProjectBtn = document.querySelector("#new-project");
+            newBtn.addEventListener("click",listeners.projectMethods.newProjectItem);
+            newProjectBtn.addEventListener("click",listeners.projectMethods.newProject);
+            closeProject.addEventListener("click",() => {
+                document.querySelector(".modal-project").style ="none";
+                document.querySelector("#form-project").reset();
+            })
         }
     }
+
+    static projectMethods = {
+        newProjectItem: function () {
+            let projectModal = document.querySelector(".modal-project");
+            projectModal.style.display="flex";
+        },
+        newProject: function () {
+            let name = document.querySelector("#input-title-project").value;
+            let description = document.querySelector("#input-description-project").value;
+            if (name == '') {
+                document.querySelector("#input-title-project").dataset.validity = 'true';
+                setTimeout(() => {document.querySelector("#input-title-project").dataset.validity = 'false'},2000)
+                return
+            };
+            for (let key of allTasks) {
+                if (name == key.name) { document.querySelector("#input-title-project").dataset.validity = 'true';
+                    setTimeout(() => {document.querySelector("#input-title-project").dataset.validity = 'false'},2000);
+                    let selected = document.querySelector("#input-title-project");
+                    let value = document.querySelector("#input-title-project").value;
+                    let number = Number(value[value.length-1]);
+                    if (isNaN(number)) {selected.value = selected.value + '-1'
+                    return}
+                    else {
+                        let valueLength = value.length-1;
+                        let str = value.slice(0,valueLength);
+                        selected.value = str + (number+1);
+                        return
+                    }
+                }
+            }
+            controller.addProject(name,description);
+            let projectModal = document.querySelector(".modal-project");
+            projectModal.style ="none";
+            document.querySelector("#form-project").reset();
+            listeners.projectMethods.updateProjects();
+            controller.organize();
+        },
+        removeProject: function (data) {
+            controller.removeProject(data);
+            let projects = document.querySelector(".projects").children;
+            for (let j = 2 ; j < projects.length; j++) {
+                if (projects[j].textContent == data) {
+                    projects[j].remove();}
+            }
+            let home = document.querySelector(".home").children
+            controller.organize();
+            home[1].dataset.selected = 'true';
+            listeners.changeMain.changeTab();
+            listeners.changeMain.changeTabDinamic();
+        },
+        updateProjects: function () {
+            copy();
+            let project = document.querySelector(".projects").children; 
+            let projectBody = document.querySelector(".projects");
+            for (let i = project.length-1 ; i > 1 ; i--) {
+                project[i].remove()
+            }
+            for (let j = 6; j < allTasks.length ; j++) {
+                let projectAssign = newElement("div","project-item");
+                projectAssign.dataset.name = allTasks[j].name;
+                projectAssign.dataset.selected = 'false';
+                let icon = newElement("div","icon");
+                icon.innerHTML = '<i class="fa-solid fa-box-archive"></i>';
+                let content = newElement("p");
+                content.textContent = allTasks[j].name;
+                let deleProj = newElement("div","delProj");
+                    deleProj.innerHTML = '<i class="fa-solid fa-trash" id="delete-project"></i>';
+                projectAssign.append(icon,content,deleProj);
+                projectBody.append(projectAssign);
+                let data = allTasks[j].name;
+                deleProj.addEventListener("click",()=> listeners.projectMethods.removeProject(data));
+            }
+            listeners.changeMain.changeTab();
+        }
+    }    
 }
 
-listeners.newTask();
-listeners.navBar();
-listeners.changeTab();
-listeners.changeProject;
+function initializeDom() {
+    listeners.taskMethods.newTask();
+    let modalClose = document.querySelector("#close");
+    let modalNew = document.querySelector("#new");
+    modalClose.addEventListener("click", listeners.taskMethods.closeTask);
+    modalNew.addEventListener("click", listeners.taskMethods.addTask);
+    listeners.taskMethods.closeTask();
+    listeners.eventListeners.newProjectListener();
+    listeners.eventListeners.navBar();
+    listeners.changeMain.changeTab();
+    listeners.changeMain.changeTabDinamic();
+}
 
+export {initializeDom,copy ,listeners}

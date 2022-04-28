@@ -1,112 +1,122 @@
-import { parseISO, add , isBefore , set } from 'date-fns'
+import { parseISO, add , isBefore , set } from 'date-fns';
 
-let allTasks = [
-    {name: 'All Tasks',
-    tasks: [
-        {title:"Tarefa 1",description:"Tarefa teste 1",dueDate:'2022-04-21',priority:"L",project:"none",check: false},
-        {title:"Tarefa 2",description:"Tarefa teste 2",dueDate:'2022-04-22',priority:"L",project:"none",check: false},
-        {title:"Tarefa 3",description:"Tarefa teste 3",dueDate:'2022-04-22',priority:"H",project:"none",check: false},
-        {title:"Tarefa 4",description:"Tarefa teste 4",dueDate:'2022-04-29',priority:"H",project:"none",check: true},
-        {title:"Tarefa 5",description:"Tarefa teste 5",dueDate:'2022-04-20',priority:"H",project:"none",check: 'failed'},
-        {title:"Tarefa 6",description:"Tarefa teste 6",dueDate:'2022-04-28',priority:"H",project:"Projeto 1",check: false},
-        {title:"Tarefa 7",description:"Tarefa teste 7",dueDate:'2022-04-28',priority:"H",project:"Projeto 2",check: false}
-    ]
-    },
-    {name: 'Today',
-        tasks: []
-    },
-    {name: 'this Week',
-        tasks: []
-    },
-    {name: 'Important',
-        tasks: []
-    },
-    {name: 'Completed',
-        tasks: []
-    },
-    {name: 'Failed',
-        tasks: []
-    },
-    {name: 'Projeto 1',
-    tasks: []
-    },
-    {name: 'Projeto 2',
-    tasks: []
-    },
-];
-
-function resetHours (date) {
-    let resetedDate = set(date, {hours: 0, minutes:0, seconds: 0})
-    return resetedDate;
-}
-
-function dateString (date) {
-    let resetedDate = date.getFullYear()+ '-0'+ (date.getMonth()+1) + '-'+ date.getDate();
-    return resetedDate;
-}
-
-function today() {
-    let today = new Date();
-    today = dateString(today);
-    for (let task of allTasks[0].tasks) {
-        let dueDate = task.dueDate;
-        (dueDate == today && task.check == false) ? allTasks[1].tasks.push(task) : '';
-    }
-}
-
-function thisWeek() {
-    let endWeek = new Date();
-    endWeek = add(endWeek, {days:7})
-    endWeek = resetHours(endWeek);  
-    for (let task of allTasks[0].tasks) {
-        let dueDate = parseISO(task.dueDate);
-        (isBefore(dueDate,endWeek) && task.check == false) ? allTasks[2].tasks.push(task) :  '';
-    }
-}
-
-function important() {
-    for (let task of allTasks[0].tasks) {
-        (task.priority == 'H' && task.check == false) ? allTasks[3].tasks.push(task): '';
-    }
-}
-
-function completed() {
-    for (let task of allTasks[0].tasks) {
-        (task.check == true) ? allTasks[4].tasks.push(task) : '';
-    }
-}
-
-function failed() {
-    let today = new Date();
-    today = add(today, {days:-1});
-    today = set(today, {hours:23, minutes:59, seconds:59});
-    for (let task of allTasks[0].tasks) {
-        let dueDate = parseISO(task.dueDate);
-        if ((task.check  == false || task.check == 'failed') && isBefore(dueDate,today)) {
-            task.check = 'failed';
-            allTasks[5].tasks.push(task);
+class orgTask {
+    static orgArray = {
+        today: function (allTasks) {
+            let today = new Date();
+            today = today.getFullYear()+ '-0'+ (today.getMonth()+1) + '-'+ today.getDate();
+            for (let task of allTasks[0].tasks) {
+                let dueDate = task.dueDate;
+                (dueDate == today && task.check == false) ? allTasks[1].tasks.push(task) : '';
+            }
+        },
+        thisWeek: function(allTasks) {
+            let endWeek = new Date();
+            endWeek = set(endWeek, {hours: 0, minutes:0, seconds: 0})
+            endWeek = add(endWeek, {days:7});
+            endWeek = set(endWeek,{hours:23, minutes:59, seconds: 59})
+            for (let task of allTasks[0].tasks) {
+                let dueDate = parseISO(task.dueDate);
+                (isBefore(dueDate,endWeek) && task.check == false) ? allTasks[2].tasks.push(task) :  '';
+            }
+        },
+        important: function(allTasks) {
+            for (let task of allTasks[0].tasks) {
+                (task.priority == 'H' && task.check == false) ? allTasks[3].tasks.push(task): '';
+            }
+        },
+        completed: function(allTasks) {
+            for (let task of allTasks[0].tasks) {
+                (task.check == true) ? allTasks[4].tasks.push(task) : '';
+            }
+        },
+        failed: function (allTasks) {
+            let today = new Date();
+            today = add(today, {days:-1});
+            today = set(today, {hours:23, minutes:59, seconds:59});
+            for (let task of allTasks[0].tasks) {
+                let dueDate = parseISO(task.dueDate);
+                if ((task.check  == false || task.check == 'failed') && isBefore(dueDate,today)) {
+                task.check = 'failed';
+                allTasks[5].tasks.push(task);
+                }
+            }
+        },
+        project: function(allTasks) {
+            for (let task of allTasks[0].tasks) {
+                for (let i = 6 ; i < allTasks.length ; i++) {
+                    if (allTasks[i].name == task.project) {
+                        allTasks[i].tasks.push(task)
+                    }
+                }
+            }
+        },
+        reset: function (allTasks) {
+            for (let q = 1; q < 6 ; q++) {
+                allTasks[q].tasks = [];
+                }
         }
     }
-}
-
-function project() {
-    for (let task of allTasks[0].tasks) {
-        for (let i = 6 ; i < allTasks.length ; i++) {
-            if (allTasks[i].name == task.project) {
-                allTasks[i].tasks.push(task)
+    static storage = {
+        storeProject: function (allTasks) {
+            let projectName = [];
+            for (let i = 6 ; i < allTasks.length ; i++) {
+                    projectName.push(allTasks[i])
+            }
+            if (projectName == '') {
+                localStorage.setItem("projects",[])
+            };
+            localStorage.setItem("projects",JSON.stringify(projectName));
+        },
+        storeTask: function (allTasks) {
+            let taskArray = allTasks[0].tasks;
+            if (taskArray.length == 0) {
+                localStorage.setItem("task",[])
+            };
+            localStorage.setItem("task",JSON.stringify(taskArray));
+        }
+    }
+    static remove = {
+        removeTask: function (allTasks,data) {
+            for (let i = 0 ; i < allTasks[0].tasks.length ; i++) {
+                if (data == allTasks[0].tasks[i].title) {
+                    allTasks[0].tasks.splice(i,1);
+                }
+            }
+        },
+        removeProject: function (allTasks,data) {
+            for(let a = 6 ; a < allTasks.length ; a++) {
+                if (allTasks[a].name == data) {
+                    allTasks.splice(a,1);
+                    for (let b = 0 ; b < allTasks[0].tasks.length ; b++) {
+                        if (data == allTasks[0].tasks[b].project) {
+                            allTasks[0].tasks.splice(b,1);
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-function organize() {
-    failed();
-    today();
-    thisWeek();
-    important();
-    completed();
-    project();
+function removeTasks(array,data) {
+    orgTask.remove.removeTask(array,data);
 }
 
-organize();
-console.log(allTasks)
+function removeProjects(array,data) {
+    orgTask.remove.removeProject(array,data);
+}
+
+function organizeOrg(array) {
+    orgTask.orgArray.reset(array);
+    orgTask.orgArray.failed(array);
+    orgTask.orgArray.today(array);
+    orgTask.orgArray.thisWeek(array);
+    orgTask.orgArray.important(array);
+    orgTask.orgArray.completed(array);
+    orgTask.orgArray.project(array);
+    orgTask.storage.storeTask(array);
+    orgTask.storage.storeProject(array);
+}
+
+export {organizeOrg, removeTasks, removeProjects};

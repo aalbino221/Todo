@@ -314,3 +314,71 @@ input, select {font-size: 30px;
 .project-item:hover {margin-bottom: 0;
     padding: 3px;}
 
+@media only screen and (max-width: 620px) { 
+    .center {flex-direction: column;}
+    .navbar {width: 100%;
+        height: fit-content;}
+    .separe {height: 0px; 
+        width: 95%;
+        background-color: #C4C4C4;
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .modal {width: 100%;
+        font-size: 20px;
+    }
+
+    .form-header-name {font-size: 20px;}
+
+    #myForm {font-size: 16px;}
+
+    .form {min-width: 100px;
+        width: 80%;
+        height: 359px;}
+
+    .form-footer {flex-wrap: wrap;}
+
+    #close {font-size: 20px;}
+
+    .form-new {height: 50%;  align-items: flex-end;}
+
+    .form-date, .form-date, .form-project, .form-new,  .form-priority {width: 40%;}
+
+    #input-date, #input-priority, #input-project, #new{font-size: 12px;}
+
+    #input-priority {height: 19px;}
+
+    input {font-size: 12px;}
+
+    #input-description { font-size: 12px;}
+
+    #form-project {width: 80%;
+        font-size: 16px;}
+
+    .home, .projects {font-size: 16px;}
+
+    .title, .content, .currentTab { font-size: 22px;}
+
+    .task, .task-date, .task-details, .task-delete {font-size: 12px;}
+
+    .task {font-size: 16px;}
+
+    .task-date {width: auto;}
+
+    .task-right {width: 140px;}
+
+    .task-details {font-size: 10px;
+    padding: 2px;
+    border: solid 1px #2a3744;}
+
+    .home, .projects {margin-bottom: 10px;}
+
+    .header {font-size: 30px;
+        padding: 10px 20px 10px 20px;}
+
+    .navbar {background-color:#e0e0e0;}
+
+    .content {padding: 25px; width: auto;}
+}
