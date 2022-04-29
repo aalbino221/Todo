@@ -396,6 +396,7 @@ class listeners {
 }
 
 function initializeDom() {
+    copy();
     listeners.taskMethods.newTask();
     let modalClose = document.querySelector("#close");
     let modalNew = document.querySelector("#new");

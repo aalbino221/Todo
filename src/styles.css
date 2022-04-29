@@ -367,7 +367,8 @@ input, select {font-size: 30px;
 
     .task-date {width: auto;}
 
-    .task-right {width: 140px;}
+    .task-right {width: 140px;
+        flex-direction: column;}
 
     .task-details {font-size: 10px;
     padding: 2px;
