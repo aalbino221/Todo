@@ -330,44 +330,51 @@ input, select {font-size: 30px;
         font-size: 20px;
     }
 
-    .form-header-name {font-size: 20px;}
+    .form-header-name {font-size: 22px;}
 
-    #myForm {font-size: 16px;}
+    #myForm {font-size: 20px;}
 
     .form {min-width: 100px;
         width: 80%;
-        height: 359px;}
+        height: auto;
+        padding: 17px;
+        gap: 5px;}
+
+    .form-description {height: 40%;
+        width: auto;}
 
     .form-footer {flex-wrap: wrap;}
 
     #close {font-size: 20px;}
 
-    .form-new {height: 50%;  align-items: flex-end;}
+    .form-new {height: 45px;  align-items: flex-end;}
 
     .form-date, .form-date, .form-project, .form-new,  .form-priority {width: 40%;}
 
-    #input-date, #input-priority, #input-project, #new{font-size: 12px;}
+    #input-date, #input-priority, #input-project, #new{font-size: 16px;}
 
     #input-priority {height: 19px;}
 
-    input {font-size: 12px;}
+    input {font-size: 16px;}
 
-    #input-description { font-size: 12px;}
+    #input-description { font-size: 16px; width: auto;}
 
     #form-project {width: 80%;
-        font-size: 16px;}
+        font-size: 16px;
+        height: 300px;
+        padding: 17px;}
 
     .home, .projects {font-size: 16px;}
 
-    .title, .content, .currentTab { font-size: 22px;}
+    .title, .content, .currentTab { font-size: 24px;}
 
-    .task, .task-date, .task-details, .task-delete {font-size: 12px;}
+    .task, .task-date, .task-details, .task-delete {font-size: 14px;}
 
-    .task {font-size: 16px;}
+    .task {font-size: 14px;}
 
     .task-date {width: auto;}
 
-    .task-right {width: 140px;
+    .task-right {width: auto;
         flex-direction: column;}
 
     .task-details {font-size: 10px;
@@ -382,4 +389,6 @@ input, select {font-size: 30px;
     .navbar {background-color:#e0e0e0;}
 
     .content {padding: 25px; width: auto;}
+
+    #myForm {padding: 17px;}
 }
